@@ -48,6 +48,20 @@ def token_required(f):
     return decorated
 
 
+@app.errorhandler(401)
+def unAuthorized(msg):
+    return msg, 401
+
+@app.errorhandler(403)
+def forbidden(msg):
+    return msg, 403
+
+@app.errorhandler(500)
+def internalCodeError(msg):
+    return msg, 500
+
+
+
 @app.route("/")
 @app.route('/login', methods =['POST'])
 def login():
@@ -58,13 +72,12 @@ def login():
     token = ""
     print(users)
     if not users:
-        msg='User Does not Exist'
+        abort(404,'User Does not Exist')
     elif users['password']==password:
-        msg= jwt.encode({
+        return jwt.encode({
             'userName': userName,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }, app.config['SECRET_KEY'])
-    return msg
  
 
 @app.route('/logout', methods =['GET', 'POST'])
@@ -89,7 +102,10 @@ def upload(filename):
 def getRecipeById(id):
     cur.execute('SELECT * From recipes WHERE recipeId = % s', (id),)
     recipe=cur.fetchone()
-    return recipe
+    if recipe:
+        return recipe
+    else:
+        abort(404, "Recipe with given Id doesnt exists")
 
 @app.route('/uploadRecipe', methods =['POST'])
 @token_required
@@ -102,11 +118,11 @@ def uploadRecipe():
     if filename != '':
         file_ext = os.path.splitext(filename)[1]
         if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-            abort(400)
+            abort(500,"File type is not allowed")
     uploadedFile.save(os.path.join(app.config['UPLOAD_PATH'], filename))
     cur.execute ('INSERT INTO recipes(recipeHeadline,recipeDes,recipeImgName,recipePostedBy,recipePostedTime) VALUES (% s, % s, % s, % s, % s)', (data.get("recipeHeadline"),data.get("recipeDes"),filename,2,datetime.now(),))
     conn.commit()
-    return "<p>Hello, World 1!</p>"
+    return "Uploaded Successfully"
 
 @app.route('/register', methods =['POST'])
 def register():
@@ -116,14 +132,13 @@ def register():
     cur.execute('SELECT * FROM users WHERE userName = % s', (userName),)
     users = cur.fetchone()
     if users:
-        msg = 'User already exists !'
+        abort(404,'User already exists !')
     elif not re.match(r'[A-Za-z0-9]+', userName):
-        msg = 'name must contain only characters and numbers !'
+        abort(500,'name must contain only characters and numbers !')
     else:
         cur.execute('INSERT INTO users (userName, firstName,lastName,password,location,mobileNumber) VALUES ( % s, % s, % s, % s, % s, % s)', (userName, firstName,lastName,password,location,mobileNumber ),)
         conn.commit()
-        msg="Successfully Registered"
-    return msg
+        return "Successfully Registered"
 
 if __name__ == '__main__':
     app.run(debug=True)
