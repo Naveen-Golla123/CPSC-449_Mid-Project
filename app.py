@@ -17,7 +17,7 @@ app.config['UPLOAD_PATH'] = 'uploads'
 conn= pymysql.connect(
     host='localhost',
     user='root',
-    password='Mynameissai@07',
+    password='Manasa@071200',
     db='cpsc_449_recipe',
     cursorclass=pymysql.cursors.DictCursor
 )
@@ -84,7 +84,7 @@ def login():
 def logout():
     return "<p>Hello, World 1!</p>"
 
-@app.route('/allRecipes', methods =['GET', 'POST'])
+@app.route('/allRecipes', methods =['GET'])
 def allRecipes():
     cur.execute('SELECT * From recipes')
     recipes=cur.fetchall()
@@ -93,7 +93,7 @@ def allRecipes():
 
     return recipes
 
-@app.route('/uploads/<filename>')
+@app.route('/uploads/getFileById<filename>')
 def upload(filename):
     return send_from_directory(app.config['UPLOAD_PATH'], filename)
 
