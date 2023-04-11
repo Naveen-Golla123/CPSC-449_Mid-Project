@@ -9,33 +9,39 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
+
+# Application configuration
 app.config['SECRET_KEY']='key'
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
 app.config['UPLOAD_PATH'] = 'uploads'
 
+
+# MySql Connection
 conn= pymysql.connect(
     host='localhost',
-    user='root',
-    password='Manasa@071200',
+    user='root', 
+    password = "Golla@189",
     db='cpsc_449_recipe',
     cursorclass=pymysql.cursors.DictCursor
 )
 cur= conn.cursor()
 
+
+# Decorator for token verification which acts as an gaurd to required resource.
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        # jwt is passed in the request header
+        # The request header contains the string jwt.
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
-        # return 401 if token is not passed
+        # output 401 if no token is supplied
         if not token:
             return jsonify({'message' : 'Token is missing !!'}), 401
         try:
             print(token)
-            # decoding the payload to fetch the stored details
+            # decoding the payload to retrieve the stored information
             data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=['HS256'])
             cur.execute('SELECT * FROM users WHERE userName = % s', (data['userName']),)
             users = cur.fetchone()
@@ -43,11 +49,15 @@ def token_required(f):
             return jsonify({
                 'message' : 'Token is invalid !!'
             }), 401
-        # returns the current logged in users context to the routes
+        # returns the context of the currently logged in user to the routes
         return  f(*args, **kwargs)
     return decorated
 
-
+'''
+Error handling for 401 -- UnAuthenticated User.
+                   403 -- unAuthorized Request
+                   500 -- Internal server error.
+'''
 @app.errorhandler(401)
 def unAuthorized(msg):
     return msg, 401
@@ -61,7 +71,7 @@ def internalCodeError(msg):
     return msg, 500
 
 
-
+# routes that logins the user with valid details.
 @app.route("/")
 @app.route('/login', methods =['POST'])
 def login():
@@ -74,30 +84,25 @@ def login():
     if not users:
         abort(404,'User Does not Exist')
     elif users['password']==password:
+        # prepare jwt token using encode method in pyJWT.
         return jwt.encode({
             'userName': userName,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }, app.config['SECRET_KEY'])
  
-
-@app.route('/logout', methods =['GET', 'POST'])
-def logout():
-    return "<p>Hello, World 1!</p>"
-
+# Route that returns all uploaded recipes.
 @app.route('/allRecipes', methods =['GET'])
 def allRecipes():
     cur.execute('SELECT * From recipes')
     recipes=cur.fetchall()
-    # for recipe in recipes:
-    #     recipe["recipeImgName"] = send_from_directory(app.config['UPLOAD_PATH'],recipe["recipeImgName"])
-
     return recipes
 
-@app.route('/uploads/getFileById<filename>')
+# Route that returns upload recipe file by its Name.
+@app.route('/uploads/getFileById/<filename>')
 def upload(filename):
     return send_from_directory(app.config['UPLOAD_PATH'], filename)
 
-
+# Route that returns specific recipe by given Id.
 @app.route('/recipe/<id>')
 def getRecipeById(id):
     cur.execute('SELECT * From recipes WHERE recipeId = % s', (id),)
@@ -107,6 +112,7 @@ def getRecipeById(id):
     else:
         abort(404, "Recipe with given Id doesnt exists")
 
+# Route that allows user to upload details and Create a recipe. Note: this route is private which require valid token.
 @app.route('/uploadRecipe', methods =['POST'])
 @token_required
 def uploadRecipe():
@@ -124,6 +130,10 @@ def uploadRecipe():
     conn.commit()
     return "Uploaded Successfully"
 
+'''
+ Route that helps user to register using userName, firstname , lastname , password and mobileNumer
+ Duplicate usernames are not allowed
+'''
 @app.route('/register', methods =['POST'])
 def register():
     data = request.form
