@@ -70,6 +70,9 @@ def forbidden(msg):
 def internalCodeError(msg):
     return msg, 500
 
+@app.errorhandler(409)
+def conflictError(msg):
+    return msg, 409
 
 # routes that logins the user with valid details.
 @app.route("/")
@@ -89,6 +92,9 @@ def login():
             'userName': userName,
             'exp' : datetime.utcnow() + timedelta(minutes = 30)
         }, app.config['SECRET_KEY'])
+    else:
+        abort(401,"Invalid credentials")
+
  
 # Route that returns all uploaded recipes.
 @app.route('/allRecipes', methods =['GET'])
@@ -142,7 +148,7 @@ def register():
     cur.execute('SELECT * FROM users WHERE userName = % s', (userName),)
     users = cur.fetchone()
     if users:
-        abort(404,'User already exists !')
+        abort(409,'User already exists !')
     elif not re.match(r'[A-Za-z0-9]+', userName):
         abort(500,'name must contain only characters and numbers !')
     else:

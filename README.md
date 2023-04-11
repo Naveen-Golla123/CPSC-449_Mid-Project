@@ -1,3 +1,9 @@
+# Group Information
+
+* Naveen Kumar Golla <naveeng@csu.fullerton.edu> 885185843
+* Lakshmi Manasa Pothakamuru  <manasapothakamuru@csu.fullerton.edu> 885214536
+* Srivatsava Dhanala <saidanala@gmail.com> 885201681
+
 # Flask Project Setup
 
 **Recipe blog**: Public can visit the site and look after lastest recipes posted by admin team.   
@@ -7,7 +13,7 @@
 1. Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
+git clone https://github.com/Naveen-Golla123/CPSC-449_Mid-Project.git
 ```
 
 2. Create a virtual environment for the project:
