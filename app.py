@@ -21,7 +21,7 @@ app.config['UPLOAD_PATH'] = 'uploads'
 conn= pymysql.connect(
     host='localhost',
     user='root', 
-    password = "Golla@189",
+    password = "Manasa@071200",
     db='cpsc_449_recipe',
     cursorclass=pymysql.cursors.DictCursor
 )
