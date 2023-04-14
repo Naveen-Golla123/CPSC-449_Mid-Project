@@ -104,14 +104,14 @@ def allRecipes():
     return recipes
 
 # Route that returns upload recipe file by its Name.
-@app.route('/uploads/getFileById/<filename>')
+@app.route('/uploads/file/<filename>')
 def upload(filename):
     return send_from_directory(app.config['UPLOAD_PATH'], filename)
 
 # Route that returns specific recipe by given Id.
-@app.route('/recipe/<id>')
-def getRecipeById(id):
-    cur.execute('SELECT * From recipes WHERE recipeId = % s', (id),)
+@app.route('/recipe/<recipeId>')
+def getRecipeById(recipeId):
+    cur.execute('SELECT * From recipes WHERE recipeId = % s', (recipeId),)
     recipe=cur.fetchone()
     if recipe:
         return recipe
@@ -119,7 +119,7 @@ def getRecipeById(id):
         abort(404, "Recipe with given Id doesnt exists")
 
 # Route that allows user to upload details and Create a recipe. Note: this route is private which require valid token.
-@app.route('/uploadRecipe', methods =['POST'])
+@app.route('/recipe', methods =['POST'])
 @token_required
 def uploadRecipe():
     uploadedFile= request.files['recipepost']
