@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 
+
 # Application configuration
 app.config['SECRET_KEY']='key'
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
