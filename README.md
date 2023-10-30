@@ -1,8 +1,8 @@
 # Group Information
 
-* Naveen Kumar Golla <naveeng@csu.fullerton.edu> 885185843
-* Lakshmi Manasa Pothakamuru  <Manasapothakamuru@csu.fullerton.edu> 885214536
-* Sai Chand Meda <medasai@csu.fullerton.edu> 885237370
+* Sanjana Bukka <sanjanabukka@csu.fullerton.edu>
+* Joshna Suresh <joshnasuresh04@csu.fullerton.edu>
+  
 
 # Flask Project Setup
 
